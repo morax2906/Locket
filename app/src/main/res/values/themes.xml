@@ -58,5 +58,9 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/_50sdp</item> <!-- Điều chỉnh bán kính bo góc -->
     </style>
+    <style name="ShapeAppearanceOverlay.App.CornerFamilyRounded2"  parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/_15sdp</item> <!-- Điều chỉnh bán kính bo góc -->
+    </style>
 
 </resources>

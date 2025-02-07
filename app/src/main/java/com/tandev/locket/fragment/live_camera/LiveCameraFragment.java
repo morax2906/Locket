@@ -1,11 +1,12 @@
 package com.tandev.locket.fragment.live_camera;
 
 import static android.app.Activity.RESULT_OK;
-
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -23,9 +25,9 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,42 +36,23 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.bumptech.glide.Glide;
 import com.google.android.gms.common.util.IOUtils;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.gson.Gson;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.tandev.locket.R;
 import com.tandev.locket.api.ApiCaller;
 import com.tandev.locket.api.MomentApiService;
-import com.tandev.locket.api.client.LoginApiClient;
-import com.tandev.locket.bottomsheet.BottomSheetFriend;
-import com.tandev.locket.bottomsheet.BottomSheetInfo;
 import com.tandev.locket.helper.ImageUtils;
-import com.tandev.locket.helper.ResponseUtils;
-import com.tandev.locket.model.login.error.LoginError;
 import com.tandev.locket.model.login.response.LoginResponse;
-import com.tandev.locket.model.moment.Moment;
-import com.tandev.locket.model.user.AccountInfo;
 import com.tandev.locket.sharedfreferences.SharedPreferencesUser;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LiveCameraFragment extends Fragment {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
@@ -178,21 +161,20 @@ public class LiveCameraFragment extends Fragment {
     private void onCLick() {
         img_camera_switch.setOnClickListener(v -> switchCamera());
 
-        img_library.setOnClickListener(view -> {
-            openGallery();
-        });
-//        img_cancel.setOnClickListener(view -> {
-//            bytes = null;
-//            edt_message = "";
-//            edt_add_message.setText("");
+        img_library.setOnClickListener(view -> openGallery());
+
+        img_cancel.setOnClickListener(view -> {
+            bytes = null;
+            edt_message = "";
+            edt_add_message.setText("");
 //            relative_profile.setVisibility(View.VISIBLE);
 //            relative_send_friend.setVisibility(View.GONE);
-//
-//            layout_img_view.setVisibility(View.GONE);
-//            camera_view.setVisibility(View.VISIBLE);
-//            linear_controller_media.setVisibility(View.VISIBLE);
-//            linear_controller_send.setVisibility(View.GONE);
-//        });
+
+            layout_img_view.setVisibility(View.GONE);
+            camera_view.setVisibility(View.VISIBLE);
+            linear_controller_media.setVisibility(View.VISIBLE);
+            linear_controller_send.setVisibility(View.GONE);
+        });
 
         img_capture.setOnClickListener(view -> capturePicture());
 
@@ -229,7 +211,10 @@ public class LiveCameraFragment extends Fragment {
                 Preview preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(camera_view.getSurfaceProvider());
 
-                imageCapture = new ImageCapture.Builder().build();
+                imageCapture = new ImageCapture.Builder()
+                        .setTargetResolution(new Size(1020, 1020))
+                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .build();
 
                 cameraProvider.unbindAll();
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
@@ -292,40 +277,65 @@ public class LiveCameraFragment extends Fragment {
         if (imageCapture == null) {
             return;
         }
-        File photoFile = new File(requireContext().getExternalFilesDir(null), System.currentTimeMillis() + ".jpg");
 
-        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+        imageCapture.takePicture(ContextCompat.getMainExecutor(requireContext()),
+                new ImageCapture.OnImageCapturedCallback() {
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
+                        // Chuyển đổi ImageProxy thành Bitmap
+                        Bitmap bitmap = imageProxyToBitmap(imageProxy);
 
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(requireContext()), new ImageCapture.OnImageSavedCallback() {
-            @Override
-            public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                Uri savedUri = Uri.fromFile(photoFile);
-                try {
-                    Uri compressedImageUri = ImageUtils.processImage(requireContext(), savedUri, 50);
-                    img_view.setImageURI(compressedImageUri);
+                        // Xử lý xoay/lật nếu cần
+                        bitmap = fixImageRotation(bitmap, imageProxy);
+                        if (!isBackCamera) {
+                            bitmap = flipBitmapHorizontally(bitmap);
+                        }
 
+                        // Hiển thị ảnh lên UI (nên chuyển về main thread nếu cần)
+                        Bitmap finalBitmap = bitmap;
+                        getActivity().runOnUiThread(() -> {
+                            img_view.setImageBitmap(finalBitmap);
+                            layout_img_view.setVisibility(View.VISIBLE);
+                            camera_view.setVisibility(View.GONE);
+                            linear_controller_media.setVisibility(View.GONE);
+                            linear_controller_send.setVisibility(View.VISIBLE);
+                        });
 
-                    InputStream inputStream = requireContext().getContentResolver().openInputStream(compressedImageUri);
-                    bytes = IOUtils.toByteArray(inputStream);
+                        // Đừng quên đóng imageProxy
+                        imageProxy.close();
+                    }
 
-//                    relative_profile.setVisibility(View.GONE);
-//                    relative_send_friend.setVisibility(View.VISIBLE);
-
-                    layout_img_view.setVisibility(View.VISIBLE);
-                    camera_view.setVisibility(View.GONE);
-                    linear_controller_media.setVisibility(View.GONE);
-                    linear_controller_send.setVisibility(View.VISIBLE);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        exception.printStackTrace();
+                    }
                 }
-            }
+        );
+    }
+    private Bitmap imageProxyToBitmap(ImageProxy image) {
+        // Nếu ImageProxy ở định dạng JPEG thì có thể sử dụng buffer này:
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
 
-            @Override
-            public void onError(@NonNull ImageCaptureException exception) {
-                // Xử lý lỗi khi chụp ảnh
-                exception.printStackTrace();
-            }
-        });
+    private Bitmap flipBitmapHorizontally(Bitmap bitmap) {
+        Matrix matrix = new Matrix();
+        matrix.postScale(-1, 1, bitmap.getWidth() / 2f, bitmap.getHeight() / 2f);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    private Bitmap fixImageRotation(Bitmap bitmap, ImageProxy imageProxy) {
+        // Nếu ảnh chụp dưới dạng JPEG, bạn có thể lấy metadata từ imageProxy
+        // hoặc sử dụng thông tin từ camera config. Ví dụ:
+        int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
+        if (rotationDegrees == 0) {
+            return bitmap;
+        }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotationDegrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     private void sendImage(byte[] imageData, String message) {

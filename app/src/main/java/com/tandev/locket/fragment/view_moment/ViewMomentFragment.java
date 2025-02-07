@@ -1,27 +1,30 @@
 package com.tandev.locket.fragment.view_moment;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.tandev.locket.R;
-import com.tandev.locket.adapter.ItemAdapter;
+import com.tandev.locket.adapter.ViewMomentAdapter;
+import com.tandev.locket.adapter.ViewAllMomentAdapter;
 import com.tandev.locket.api.MomentApiService;
 import com.tandev.locket.api.client.LoginApiClient;
 import com.tandev.locket.model.login.response.LoginResponse;
@@ -40,9 +43,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ViewMomentFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private ItemAdapter itemAdapter;
-    private ArrayList<Moment> itemList = new ArrayList<>();
+    private RelativeLayout relative_view_all_moment;
+    private RelativeLayout relative_view_moment;
+    private RecyclerView rv_view_moment;
+    private RecyclerView rv_view_all_moment;
+
+    private RoundedImageView img_capture;
+    private ImageView img_all_moment;
+    private ViewMomentAdapter viewMomentAdapter;
+    private ViewAllMomentAdapter viewAllMomentAdapter;
+    private final ArrayList<Moment> itemList = new ArrayList<>();
     private LoginResponse loginResponse;
     private MomentApiService momentApiService;
 
@@ -58,17 +68,58 @@ public class ViewMomentFragment extends Fragment {
         loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
         momentApiService = LoginApiClient.getCheckEmailClient().create(MomentApiService.class);
 
-        recyclerView = view.findViewById(R.id.recyclerView);
+         rv_view_moment = view.findViewById(R.id.rv_view_moment);
+         rv_view_all_moment = view.findViewById(R.id.rv_view_all_moment);
+        img_capture = view.findViewById(R.id.img_capture);
+        img_all_moment = view.findViewById(R.id.img_all_moment);
+        relative_view_all_moment = view.findViewById(R.id.relative_view_all_moment);
+        relative_view_moment = view.findViewById(R.id.relative_view_moment);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false);
-        recyclerView.setLayoutManager(layoutManager);
+        rv_view_moment.setLayoutManager(layoutManager);
 
         // Thiết lập Adapter cho RecyclerView
-        itemAdapter = new ItemAdapter(requireContext(), itemList);
-        recyclerView.setAdapter(itemAdapter);
+        viewMomentAdapter = new ViewMomentAdapter(requireContext(), itemList);
+        rv_view_moment.setAdapter(viewMomentAdapter);
 
         // Sử dụng PagerSnapHelper để tạo hiệu ứng cuộn giống ViewPager2
         PagerSnapHelper snapHelper = new PagerSnapHelper();
-        snapHelper.attachToRecyclerView(recyclerView);
+        snapHelper.attachToRecyclerView(rv_view_moment);
+
+
+
+        // Thiết lập LayoutManager với 3 cột
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(requireContext(), 3); // 3 là số item mỗi hàng
+        rv_view_all_moment.setLayoutManager(gridLayoutManager);
+
+        // Thiết lập Adapter
+        viewAllMomentAdapter = new ViewAllMomentAdapter(itemList, requireContext());
+        rv_view_all_moment.setAdapter(viewAllMomentAdapter);
+
+        img_capture.setOnClickListener(view1 -> {
+            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
+            if (viewPager != null) {
+                viewPager.setCurrentItem(0, true); // Chuyển về LiveCameraFragment
+            } else {
+                Log.e("ViewMomentFragment", "ViewPager2 not found!");
+            }
+        });
+        img_all_moment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                relative_view_all_moment.setVisibility(View.VISIBLE);
+                relative_view_moment.setVisibility(View.GONE);
+
+                viewAllMomentAdapter.setFilterList(itemList);
+            }
+        });
+
+        int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+        int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+        for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; i++) {
+           sendPositionSwipeViewpage2(i);
+            Log.d(">>>>>>>>>>>>>>>>>>>>>>>>>", "onViewCreated: "+i);
+        }
 
         // Thêm dữ liệu mẫu vào danh sách
         getMomentV2(null);
@@ -102,7 +153,7 @@ public class ViewMomentFragment extends Fragment {
         ResponseBodyCall.enqueue(new Callback<ResponseBody>() {
             @SuppressLint("SetTextI18n")
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String responseBody = response.body().string();
@@ -113,20 +164,37 @@ public class ViewMomentFragment extends Fragment {
                             getMomentV2(finalExcludedUsers);
                             itemList.add(moment);
                         } else {
-                            itemAdapter.setFilterList(itemList);
+                            viewMomentAdapter.setFilterList(itemList);
                         }
                     } catch (IOException e) {
                         Log.e("Response Error", "Error reading response body", e);
                     }
                 } else {
-                    itemAdapter.setFilterList(itemList);
+                    viewMomentAdapter.setFilterList(itemList);
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                itemAdapter.setFilterList(itemList);
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
+                viewMomentAdapter.setFilterList(itemList);
             }
         });
+    }
+
+    private void sendPositionSwipeViewpage2(int position) {
+        Intent intent = new Intent("send_position_swipe_viewpage2");
+        Bundle bundle = new Bundle();
+        bundle.putInt("position", position);
+        intent.putExtras(bundle);
+
+        LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        relative_view_all_moment.setVisibility(View.GONE);
+        relative_view_moment.setVisibility(View.VISIBLE);
+        rv_view_moment.scrollToPosition(0);
     }
 }

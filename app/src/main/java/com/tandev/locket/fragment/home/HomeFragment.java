@@ -4,7 +4,10 @@ import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
@@ -93,6 +97,22 @@ public class HomeFragment extends Fragment {
     private TextView txt_number_friends;
     private ImageView img_message;
     private MomentApiService momentApiService;
+
+
+    public BroadcastReceiver createBroadcastReceiver() {
+        return new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                if (bundle == null) {
+                    return;
+                }
+                int position = bundle.getInt("position");
+//                viewPager.setUserInputEnabled(position == 0);
+                Log.d("??????????????????", "onReceive: "+position);
+            }
+        };
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -169,7 +189,7 @@ public class HomeFragment extends Fragment {
         long currentTime = System.currentTimeMillis();
         if (currentTime >= expiryTime) {
             refreshToken();
-        }else {
+        } else {
 //            getMomentV2(null);
         }
     }
@@ -297,5 +317,17 @@ public class HomeFragment extends Fragment {
         transaction.replace(R.id.frame_layout, new LoginOrRegisterFragment());
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         transaction.commit();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(createBroadcastReceiver(), new IntentFilter("send_position_swipe_viewpage2"));
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(createBroadcastReceiver());
     }
 }

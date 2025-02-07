@@ -2,7 +2,6 @@ package com.tandev.locket.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +22,10 @@ import com.tandev.locket.model.login.response.LoginResponse;
 import com.tandev.locket.model.moment.Moment;
 import com.tandev.locket.sharedfreferences.SharedPreferencesUser;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
@@ -40,14 +36,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 // ItemAdapter.java
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.ItemViewHolder> {
 
     private ArrayList<Moment> itemList; // Danh sách URL hình ảnh hoặc dữ liệu
     private Context context;
     private LoginResponse loginResponse;
     private FriendApiService friendApiService;
 
-    public ItemAdapter(Context context, ArrayList<Moment> itemList) {
+    public ViewMomentAdapter(Context context, ArrayList<Moment> itemList) {
         this.context = context;
         this.itemList = itemList;
         loginResponse = SharedPreferencesUser.getLoginResponse(context);
