@@ -11,6 +11,7 @@
         android:id="@+id/relative_view_all_moment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/_50sdp"
         android:visibility="gone">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -45,9 +46,9 @@
             <LinearLayout
                 android:id="@+id/linear_reaction"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_40sdp"
+                android:layout_height="@dimen/_38sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_20sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
                 android:background="@drawable/background_btn"
                 android:gravity="center"
                 android:orientation="horizontal"
@@ -64,14 +65,6 @@
                     android:textSize="@dimen/_14ssp" />
 
                 <TextView
-                    android:id="@+id/txt_heart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/_10sdp"
-                    android:text="💛"
-                    android:textSize="@dimen/_20ssp" />
-
-                <TextView
                     android:id="@+id/txt_fire"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -80,11 +73,19 @@
                     android:textSize="@dimen/_20ssp" />
 
                 <TextView
+                    android:id="@+id/txt_heart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:text="💛"
+                    android:textSize="@dimen/_20ssp" />
+
+                <TextView
                     android:id="@+id/txt_laugh"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/_10sdp"
-                    android:text="😂"
+                    android:text="😍"
                     android:textSize="@dimen/_20ssp" />
 
                 <ImageView
@@ -114,8 +115,8 @@
 
                     <ImageView
                         android:id="@+id/img_all_moment"
-                        android:layout_width="@dimen/_30sdp"
-                        android:layout_height="@dimen/_30sdp"
+                        android:layout_width="@dimen/_28sdp"
+                        android:layout_height="@dimen/_28sdp"
                         android:layout_gravity="center"
                         android:src="@drawable/grid_view_24px"
                         app:tint="@color/text" />
@@ -128,8 +129,8 @@
 
                         <com.makeramen.roundedimageview.RoundedImageView
                             android:id="@+id/img_capture"
-                            android:layout_width="@dimen/_45sdp"
-                            android:layout_height="@dimen/_45sdp"
+                            android:layout_width="@dimen/_40sdp"
+                            android:layout_height="@dimen/_40sdp"
                             android:background="@drawable/bg_widget_empty_circle_outline"
                             android:padding="@dimen/_5sdp"
                             android:src="@color/white"
@@ -138,12 +139,10 @@
 
                     <ImageView
                         android:id="@+id/img_more"
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
+                        android:layout_width="@dimen/_28sdp"
+                        android:layout_height="@dimen/_28sdp"
                         android:layout_gravity="center"
-                        android:background="@drawable/bg_widget_empty_circle_outline_gray"
-                        android:padding="@dimen/_5sdp"
-                        android:src="@drawable/more_horiz_24px"
+                        android:src="@drawable/ios_share_24px"
                         app:tint="@color/text" />
                 </LinearLayout>
 

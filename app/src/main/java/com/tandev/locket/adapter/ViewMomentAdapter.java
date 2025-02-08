@@ -100,7 +100,8 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
             Glide.with(context)
                     .load(moment.getResult().getData().get(0).getThumbnail_url())
                     .into(shapeable_imageview);
-            txt_content.setText(moment.getResult().getData().get(0).getCaption());
+            txt_content.setText(checkOverlayId(moment.getResult().getData().get(0).getOverlays().get(0).getOverlay_id(),
+                    moment.getResult().getData().get(0).getOverlays().get(0).getAlt_text()));
 
             getFetchUserV2(moment.getResult().getData().get(0).getUser(), new FetchUserCallback() {
                 @Override
@@ -126,30 +127,38 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         }
     }
 
-    private String formatDate(long seconds) {
-        // Chuyển đổi seconds thành milliseconds
-        long currentTimeMillis = System.currentTimeMillis();
-        long timeInMillis = seconds * 1000; // Chuyển đổi sang milliseconds
+    private String checkOverlayId(String overlay_id, String alt_text) {
+        if (overlay_id.equals("caption:time")) {
+            alt_text = "🕘 " + alt_text;
+        }
+        return alt_text;
+    }
 
-        // Tính thời gian chênh lệch
+    private String formatDate(long seconds) {
+        long currentTimeMillis = System.currentTimeMillis();
+        long timeInMillis = seconds * 1000;
         long diff = currentTimeMillis - timeInMillis;
 
-        // Nếu thời gian chênh lệch dưới 24 giờ
-        if (diff < TimeUnit.DAYS.toMillis(1)) {
+        if (diff < TimeUnit.HOURS.toMillis(1)) {
             long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-            long hours = TimeUnit.MILLISECONDS.toHours(diff);
-
-            if (minutes < 60) {
-                return minutes + "m"; // Trả về phút
-            } else {
-                return hours + "h"; // Trả về giờ
-            }
-        } else {
-            // Nếu hơn 24 giờ, trả về định dạng "hh:mm dd/MM/yyyy"
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
-            return dateFormat.format(new Date(timeInMillis));
+            return minutes + "ph";
         }
+
+        if (diff < TimeUnit.DAYS.toMillis(1)) {
+            long hours = TimeUnit.MILLISECONDS.toHours(diff);
+            return hours + "g";
+        }
+
+        long days = TimeUnit.MILLISECONDS.toDays(diff);
+        if (days < 7) { // Nếu dưới 7 ngày thì hiển thị số ngày
+            return days + "d";
+        }
+
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
+        return dateFormat.format(new Date(timeInMillis));
     }
+
 
     @SuppressLint("DefaultLocale")
     private String createGetFriendsJson(String user_id) {

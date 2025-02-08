@@ -108,8 +108,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 int position = bundle.getInt("position");
-//                viewPager.setUserInputEnabled(position == 0);
-                Log.d("??????????????????", "onReceive: "+position);
+                viewPager.setUserInputEnabled(position == 0);
             }
         };
     }

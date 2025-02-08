@@ -100,6 +100,7 @@ public class ViewMomentFragment extends Fragment {
             ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
             if (viewPager != null) {
                 viewPager.setCurrentItem(0, true); // Chuyển về LiveCameraFragment
+                sendPositionSwipeViewpage2(0);
             } else {
                 Log.e("ViewMomentFragment", "ViewPager2 not found!");
             }
@@ -111,15 +112,25 @@ public class ViewMomentFragment extends Fragment {
                 relative_view_moment.setVisibility(View.GONE);
 
                 viewAllMomentAdapter.setFilterList(itemList);
+                sendPositionSwipeViewpage2(0);
             }
         });
 
-        int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-        int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
-        for (int i = firstVisibleItemPosition; i <= lastVisibleItemPosition; i++) {
-           sendPositionSwipeViewpage2(i);
-            Log.d(">>>>>>>>>>>>>>>>>>>>>>>>>", "onViewCreated: "+i);
-        }
+        rv_view_moment.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) { // Chỉ lấy khi dừng cuộn
+                    View centerView = snapHelper.findSnapView(layoutManager);
+                    if (centerView != null) {
+                        int position = layoutManager.getPosition(centerView);
+                        Log.d("RecyclerView", "Item đang hiển thị: " + position);
+                        sendPositionSwipeViewpage2(position);
+                    }
+                }
+            }
+        });
 
         // Thêm dữ liệu mẫu vào danh sách
         getMomentV2(null);

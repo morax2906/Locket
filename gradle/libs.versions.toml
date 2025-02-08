@@ -14,6 +14,8 @@ activity = "1.10.0"
 constraintlayout = "2.2.0"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
+roomRuntime = "2.6.1"
+roomCompiler = "2.6.1"
 sdpAndroid = "1.1.1"
 sspAndroid = "1.1.1"
 roundedimageview = "2.3.0"
@@ -25,6 +27,8 @@ androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", versi
 androidx-camera-mlkit-vision = { module = "androidx.camera:camera-mlkit-vision", version.ref = "cameraMlkitVision" }
 androidx-camera-video = { module = "androidx.camera:camera-video", version.ref = "cameraExtensions" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraExtensions" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "cameraExtensions" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
