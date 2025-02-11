@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -73,8 +74,14 @@ import com.tandev.locket.sharedfreferences.SharedPreferencesUser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import okhttp3.MediaType;
@@ -179,19 +186,47 @@ public class HomeFragment extends Fragment {
         viewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
     }
 
-    @SuppressLint("SetTextI18n")
     private void checkExpiresToken() {
-        AccountInfo accountInfo = SharedPreferencesUser.getAccountInfo(requireContext());
-        long lastLoginTime = accountInfo.getUsers().get(0).getLastLoginAt();
-        long expiryDuration = 3500 * 1000;
-        long expiryTime = lastLoginTime + expiryDuration;
-        long currentTime = System.currentTimeMillis();
-        if (currentTime >= expiryTime) {
-            refreshToken();
-        } else {
-//            getMomentV2(null);
+//        AccountInfo accountInfo = SharedPreferencesUser.getAccountInfo(requireContext());
+//
+//        // Lấy thời gian làm mới cuối cùng (milliseconds)
+//        long lastLoginTime = convertTime(accountInfo.getUsers().get(0).getLastRefreshAt());
+//
+//        // Thời hạn hiệu lực token (3500 giây = 58 phút 20 giây)
+//        long expiryDuration = 3500 * 1000L;
+//
+//        // Thời gian hết hạn của token
+//        long expiryTime = lastLoginTime + expiryDuration;
+//
+//        // Lấy thời gian hiện tại
+//        long currentTime = System.currentTimeMillis();
+//
+//        // Kiểm tra nếu token hết hạn
+//        if (currentTime >= expiryTime) {
+//            refreshToken();
+//        }
+        refreshToken();
+    }
+
+
+    private long convertTime(String lastRefreshAt) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // Android 8+ (API 26+)
+                return Instant.parse(lastRefreshAt).toEpochMilli();
+            } else {
+                // Android 7- (API < 26)
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = sdf.parse(lastRefreshAt);
+                return (date != null) ? date.getTime() : 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0; // Trả về 0 nếu lỗi xảy ra
         }
     }
+
 
     private String createSignInJson(String grantType, String refreshToken) {
         return String.format(
@@ -217,14 +252,19 @@ public class HomeFragment extends Fragment {
                         Gson gson = new Gson();
                         AuthResponse authResponse = gson.fromJson(responseBody, AuthResponse.class);
 
+
                         //save user
                         LoginResponse newLoginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
+                        Log.d(">>>>>>>>>>>>>>>", "old Token: " + newLoginResponse.getIdToken());
+                        Log.d(">>>>>>>>>>>>>>>", "new Token: " + authResponse.getIdToken());
+
                         newLoginResponse.setIdToken(authResponse.getIdToken());
                         newLoginResponse.setRefreshToken(authResponse.getRefreshToken());
                         SharedPreferencesUser.saveLoginResponse(requireContext(), newLoginResponse);
+                        loginResponse = SharedPreferencesUser.getLoginResponse(requireContext());
 
 
-//                        getMomentV2(null);
+                        getMomentV2(null);
                     } catch (IOException e) {
                         Log.e("Auth", "Error reading response body", e);
                     }
@@ -265,6 +305,7 @@ public class HomeFragment extends Fragment {
         }
 
         String token = "Bearer " + loginResponse.getIdToken();
+        Log.d(">>>>>>>>>>>>>>>>>>", "getMomentV2: " + token);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), createGetMomentV2ExcludedUsersJson(excludedUsers));
         Call<ResponseBody> ResponseBodyCall = momentApiService.GET_MOMENT_V2(token, requestBody);
         List<String> finalExcludedUsers = excludedUsers;

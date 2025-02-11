@@ -12,6 +12,9 @@
     <color name="red">#FF0000</color>
     <color name="green">#5ce65c</color>
 
+    <color name="colorEnd">#5EFFF5</color>
+    <color name="colorStart">#FCFF57</color>
+
 
     <color name="abc_decor_view_status_guard">#ff000000</color>
     <color name="abc_decor_view_status_guard_light">#ffffffff</color>

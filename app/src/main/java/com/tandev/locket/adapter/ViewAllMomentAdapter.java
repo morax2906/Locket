@@ -1,37 +1,30 @@
 package com.tandev.locket.adapter;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.tandev.locket.R;
-import com.tandev.locket.model.firend.Friend;
-import com.tandev.locket.model.moment.Moment;
-
-import java.util.ArrayList;
+import com.tandev.locket.test.MomentEntity;
+import java.util.List;
 
 public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdapter.ViewHolder> {
-    private ArrayList<Moment> itemList; // Danh sách URL hình ảnh hoặc dữ liệu
+    private List<MomentEntity> itemList; // Danh sách URL hình ảnh hoặc dữ liệu
     private final Context context;
 
     @SuppressLint("NotifyDataSetChanged")
-    public void setFilterList(ArrayList<Moment> filterList) {
+    public void setFilterList(List<MomentEntity> filterList) {
         this.itemList = filterList;
         notifyDataSetChanged();
     }
 
-    public ViewAllMomentAdapter(ArrayList<Moment> itemList, Context context) {
+    public ViewAllMomentAdapter(List<MomentEntity> itemList, Context context) {
         this.itemList = itemList;
         this.context = context;
     }
@@ -46,16 +39,14 @@ public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdap
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Moment moment = itemList.get(position);
+        MomentEntity moment = itemList.get(position);
 
         Glide.with(context)
-                .load(moment.getResult().getData().get(0).getThumbnail_url())
+                .load(moment.getThumbnailUrl())
                 .into(holder.shapeable_imageview);
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-            }
+        holder.itemView.setOnClickListener(view -> {
+
         });
     }
 
@@ -66,7 +57,7 @@ public class ViewAllMomentAdapter extends RecyclerView.Adapter<ViewAllMomentAdap
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private ShapeableImageView shapeable_imageview;
+        private final ShapeableImageView shapeable_imageview;
 
         public ViewHolder(View itemView) {
             super(itemView);

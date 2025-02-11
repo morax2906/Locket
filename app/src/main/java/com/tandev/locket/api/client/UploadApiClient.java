@@ -1,5 +1,8 @@
 package com.tandev.locket.api.client;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -31,10 +34,18 @@ public class UploadApiClient {
         return uploadVideoRetrofit;
     }
 
+
     public static Retrofit getPostRetrofit() {
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)  // Thời gian timeout khi kết nối
+                .writeTimeout(30, TimeUnit.SECONDS)    // Thời gian timeout khi ghi dữ liệu
+                .readTimeout(30, TimeUnit.SECONDS)     // Thời gian timeout khi đọc dữ liệu
+                .build();
+
         if (postRetrofit == null) {
             postRetrofit = new Retrofit.Builder()
                     .baseUrl(BASE_POST_URL)
+                    .client(okHttpClient) // Thêm OkHttpClient vào Retrofit
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

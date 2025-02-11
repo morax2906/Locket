@@ -2,12 +2,15 @@ package com.tandev.locket.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,13 +22,13 @@ import com.tandev.locket.api.FriendApiService;
 import com.tandev.locket.api.client.LoginApiClient;
 import com.tandev.locket.model.firend.Friend;
 import com.tandev.locket.model.login.response.LoginResponse;
-import com.tandev.locket.model.moment.Moment;
 import com.tandev.locket.sharedfreferences.SharedPreferencesUser;
+import com.tandev.locket.test.MomentEntity;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
@@ -38,12 +41,13 @@ import retrofit2.Response;
 // ItemAdapter.java
 public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.ItemViewHolder> {
 
-    private ArrayList<Moment> itemList; // Danh sách URL hình ảnh hoặc dữ liệu
-    private Context context;
-    private LoginResponse loginResponse;
-    private FriendApiService friendApiService;
+    private List<MomentEntity> itemList; // Đổi từ Moment sang MomentEntity
 
-    public ViewMomentAdapter(Context context, ArrayList<Moment> itemList) {
+    private final Context context;
+    private final LoginResponse loginResponse;
+    private final FriendApiService friendApiService;
+
+    public ViewMomentAdapter(Context context, List<MomentEntity> itemList) {
         this.context = context;
         this.itemList = itemList;
         loginResponse = SharedPreferencesUser.getLoginResponse(context);
@@ -51,7 +55,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    public void setFilterList(ArrayList<Moment> filterList) {
+    public void setFilterList(List<MomentEntity> filterList) {
         this.itemList = filterList;
         notifyDataSetChanged();
     }
@@ -96,14 +100,18 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
             txt_time = itemView.findViewById(R.id.txt_time);
         }
 
-        public void bind(Moment moment) {
+        public void bind(MomentEntity moment) {
             Glide.with(context)
-                    .load(moment.getResult().getData().get(0).getThumbnail_url())
+                    .load(moment.getThumbnailUrl())
                     .into(shapeable_imageview);
-            txt_content.setText(checkOverlayId(moment.getResult().getData().get(0).getOverlays().get(0).getOverlay_id(),
-                    moment.getResult().getData().get(0).getOverlays().get(0).getAlt_text()));
+            if (moment.getOverlays() != null && !moment.getOverlays().isEmpty()) {
+                txt_content.setText(checkOverlayId(moment.getOverlays().get(0).getOverlay_id(), moment.getOverlays().get(0).getAlt_text(), txt_content));
+            } else {
+                txt_content.setVisibility(View.GONE);
+            }
 
-            getFetchUserV2(moment.getResult().getData().get(0).getUser(), new FetchUserCallback() {
+
+            getFetchUserV2(moment.getUser(), new FetchUserCallback() {
                 @Override
                 public void onSuccess(Friend friend) {
                     Glide.with(context)
@@ -123,13 +131,35 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
                     txt_name.setText("null");
                 }
             });
-            txt_time.setText(formatDate(moment.getResult().getData().get(0).getDate().get_seconds()));
+            txt_time.setText(formatDate(moment.getDateSeconds()));
         }
     }
 
-    private String checkOverlayId(String overlay_id, String alt_text) {
+    @SuppressLint("ResourceAsColor")
+    private String checkOverlayId(String overlay_id, String alt_text, TextView txt_content) {
         if (overlay_id.equals("caption:time")) {
             alt_text = "🕘 " + alt_text;
+        } else if (overlay_id.equals("caption:party_time")) {
+            Drawable backgroundDrawable = txt_content.getBackground();
+            if (backgroundDrawable instanceof GradientDrawable) {
+                txt_content.setBackgroundResource(R.drawable.gradient_party_time);
+            }
+            txt_content.setTextColor(ContextCompat.getColor(context, R.color.black));
+            alt_text = "\uD83E\uDEA9 " + alt_text;
+        } else if (overlay_id.equals("caption:goodnight")) {
+            Drawable backgroundDrawable = txt_content.getBackground();
+            if (backgroundDrawable instanceof GradientDrawable) {
+                txt_content.setBackgroundResource(R.drawable.gradient_good_night);
+            }
+            txt_content.setTextColor(ContextCompat.getColor(context, R.color.white));
+            alt_text = "\uD83C\uDF19 " + alt_text;
+        } else if (overlay_id.equals("caption:miss_you")) {
+            Drawable backgroundDrawable = txt_content.getBackground();
+            if (backgroundDrawable instanceof GradientDrawable) {
+                txt_content.setBackgroundResource(R.drawable.gradient_miss_you);
+            }
+            txt_content.setTextColor(ContextCompat.getColor(context, R.color.white));
+            alt_text = "\ud83e\udd70 " + alt_text;
         }
         return alt_text;
     }
@@ -175,7 +205,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
         Call<ResponseBody> responseBodyCall = friendApiService.FETCH_USER_RESPONSE_CALL(token, requestBody);
         responseBodyCall.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     try {
                         String responseBody = response.body().string();
@@ -192,7 +222,7 @@ public class ViewMomentAdapter extends RecyclerView.Adapter<ViewMomentAdapter.It
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
                 callback.onFailure("Unsuccessful response: " + throwable.getMessage());
             }
         });
