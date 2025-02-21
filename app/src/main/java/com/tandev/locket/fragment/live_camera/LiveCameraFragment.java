@@ -1,12 +1,12 @@
 package com.tandev.locket.fragment.live_camera;
 
 import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -49,6 +49,7 @@ import com.tandev.locket.helper.ImageUtils;
 import com.tandev.locket.model.login.response.LoginResponse;
 import com.tandev.locket.sharedfreferences.SharedPreferencesUser;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -212,7 +213,7 @@ public class LiveCameraFragment extends Fragment {
                 preview.setSurfaceProvider(camera_view.getSurfaceProvider());
 
                 imageCapture = new ImageCapture.Builder()
-                        .setTargetResolution(new Size(1020, 1020))
+                        .setTargetResolution(new Size(800, 800))
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                         .build();
 
@@ -278,64 +279,63 @@ public class LiveCameraFragment extends Fragment {
             return;
         }
 
+        // 1. Lấy ảnh preview từ PreviewView (chụp nhanh, dùng để hiển thị ngay lập tức)
+        Bitmap previewBitmap = camera_view.getBitmap();
+        if (previewBitmap != null) {
+            // Hiển thị preview ngay lập tức trên UI
+            getActivity().runOnUiThread(() -> {
+                img_view.setImageBitmap(previewBitmap);
+                layout_img_view.setVisibility(View.VISIBLE);
+                camera_view.setVisibility(View.GONE);
+                linear_controller_media.setVisibility(View.GONE);
+                linear_controller_send.setVisibility(View.VISIBLE);
+            });
+        }
+
+        // 2. Chụp ảnh chất lượng cao bằng ImageCapture (xử lý ở background, upload sau)
         imageCapture.takePicture(ContextCompat.getMainExecutor(requireContext()),
                 new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
-                        // Chuyển đổi ImageProxy thành Bitmap
-                        Bitmap bitmap = imageProxyToBitmap(imageProxy);
-
-                        // Xử lý xoay/lật nếu cần
-                        bitmap = fixImageRotation(bitmap, imageProxy);
-                        if (!isBackCamera) {
-                            bitmap = flipBitmapHorizontally(bitmap);
+                        Log.d("Debug", "Ảnh chụp thành công, bắt đầu xử lý...");
+                        Bitmap fullBitmap = imageProxyToBitmap(imageProxy);
+                        if (fullBitmap == null) {
+                            Log.e("Debug", "fullBitmap = null, không thể chuyển đổi!");
+                            return;
                         }
-
-                        // Hiển thị ảnh lên UI (nên chuyển về main thread nếu cần)
-                        Bitmap finalBitmap = bitmap;
-                        getActivity().runOnUiThread(() -> {
-                            img_view.setImageBitmap(finalBitmap);
-                            layout_img_view.setVisibility(View.VISIBLE);
-                            camera_view.setVisibility(View.GONE);
-                            linear_controller_media.setVisibility(View.GONE);
-                            linear_controller_send.setVisibility(View.VISIBLE);
-                        });
-
-                        // Đừng quên đóng imageProxy
+                        Log.d("Debug", "Bitmap hợp lệ, bắt đầu chuyển thành byte array...");
+                        new Thread(() -> {
+                            try {
+                                 bytes = bitmapToByteArray(fullBitmap);
+                                Log.d("Debug", "Chuyển đổi thành công, kích thước: " + bytes.length + " bytes");
+                            } catch (Exception e) {
+                                Log.e("Debug", "Lỗi khi chuyển đổi Bitmap thành byte array", e);
+                            }
+                        }).start();
                         imageProxy.close();
                     }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        exception.printStackTrace();
-                    }
-                }
-        );
+                });
     }
+
+    // Hàm chuyển đổi Bitmap thành byte[]
+    private byte[] bitmapToByteArray(Bitmap bitmap) {
+        if (bitmap == null) {
+            Log.e(">>>>>>>>>>>>>", "bitmapToByteArray nhận bitmap = null");
+            return new byte[0]; // Tránh lỗi null
+        }
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
+    }
+
+
+    // Phương thức chuyển đổi ImageProxy thành Bitmap
     private Bitmap imageProxyToBitmap(ImageProxy image) {
-        // Nếu ImageProxy ở định dạng JPEG thì có thể sử dụng buffer này:
         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-    }
-
-    private Bitmap flipBitmapHorizontally(Bitmap bitmap) {
-        Matrix matrix = new Matrix();
-        matrix.postScale(-1, 1, bitmap.getWidth() / 2f, bitmap.getHeight() / 2f);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    private Bitmap fixImageRotation(Bitmap bitmap, ImageProxy imageProxy) {
-        // Nếu ảnh chụp dưới dạng JPEG, bạn có thể lấy metadata từ imageProxy
-        // hoặc sử dụng thông tin từ camera config. Ví dụ:
-        int rotationDegrees = imageProxy.getImageInfo().getRotationDegrees();
-        if (rotationDegrees == 0) {
-            return bitmap;
-        }
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationDegrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     private void sendImage(byte[] imageData, String message) {
@@ -375,7 +375,7 @@ public class LiveCameraFragment extends Fragment {
                     linear_history.setVisibility(View.VISIBLE);
                 }, 3000);
             } else {
-                Log.e("TAG", "Image posting failed");
+                Log.e("sendImage", "Image posting failed");
             }
         });
     }
