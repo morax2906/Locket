@@ -1,7 +1,5 @@
 package com.tandev.locket.api;
 
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,18 +9,21 @@ import com.tandev.locket.constants.HeaderConstants;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.Map;
+
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import java.util.Map;
 
 public class ApiCaller {
 
     private final UploadApiService uploadApiService;
     private final UploadApiService postApiService;
+    private static final String TAG = "ApiCaller";
 
     public ApiCaller(boolean isVideoUpload) {
         if (isVideoUpload) {
@@ -36,55 +37,79 @@ public class ApiCaller {
     public interface UploadCallback {
         void onUploadComplete(String url, boolean success);
     }
+    private String getJsonData(String idUser, String nameImg) {
+        return String.format("{\"name\":\"users/%s/moments/thumbnails/%s\",\"contentType\":\"image/*\",\"bucket\":\"\",\"metadata\":{\"creator\":\"%s\",\"visibility\":\"private\"}}", idUser, nameImg, idUser);
+    }
 
     public void startUploadImage(String idUser, String idToken, byte[] image, UploadCallback callback) {
+        if (image == null || image.length == 0) {
+            Log.e(TAG, "startUploadImage: Image data is null or empty!");
+            callback.onUploadComplete(null, false);
+            return;
+        }
+
         String nameImg = System.currentTimeMillis() + "_tandev.webp";
-        String url = String.format("users%%2F%s%%2Fmoments%%2Fthumbnails%%2F%s?uploadType=resumable&name=users%%2F%s%%2Fmoments%%2Fthumbnails%%2F%s", idUser, nameImg, idUser, nameImg);
+        String url = String.format("users%%2F%s%%2Fmoments%%2Fthumbnails%%2F%s?uploadType=resumable&name=users%%2F%s%%2Fmoments%%2Fthumbnails%%2F%s",
+                idUser, nameImg, idUser, nameImg);
+
         Map<String, String> headers = HeaderConstants.getStartUploadHeaders(idToken, image.length, false);
-
-
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=UTF-8"), getJsonData(idUser, nameImg));
+
+        Log.d(TAG, "Starting image upload: " + nameImg);
         Call<ResponseBody> call = uploadApiService.startUploadImage(url, headers, requestBody);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (!response.isSuccessful()) {
+                    Log.e(TAG, "startUploadImage failed: " + response.code());
                     callback.onUploadComplete(null, false);
                     return;
                 }
 
                 String uploadUrl = response.headers().get("x-goog-upload-url");
+                Log.d(TAG, "Received upload URL: " + uploadUrl);
                 uploadImage(uploadUrl, image, idUser, nameImg, idToken, callback);
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
-                Log.e("ApiCaller", "Error in uploadImageToFirebaseStorage", throwable);
+                Log.e(TAG, "Error in startUploadImage", throwable);
                 callback.onUploadComplete(null, false);
             }
         });
     }
 
-    private String getJsonData(String idUser, String nameImg) {
-        return String.format("{\"name\":\"users/%s/moments/thumbnails/%s\",\"contentType\":\"image/*\",\"bucket\":\"\",\"metadata\":{\"creator\":\"%s\",\"visibility\":\"private\"}}", idUser, nameImg, idUser);
-    }
-
     private void uploadImage(String uploadUrl, byte[] image, String idUser, String nameImg, String idToken, UploadCallback callback) {
-        Map<String, String> uploadHeaders = HeaderConstants.getUploadImageHeaders();
+        if (uploadUrl == null || uploadUrl.isEmpty()) {
+            Log.e(TAG, "uploadImage: Upload URL is null or empty!");
+            callback.onUploadComplete(null, false);
+            return;
+        }
 
+        Map<String, String> uploadHeaders = HeaderConstants.getUploadImageHeaders();
         RequestBody imageBody = RequestBody.create(MediaType.parse("image/webp"), image);
+
+        Log.d(TAG, "Uploading image to: " + uploadUrl);
         Call<ResponseBody> uploadCall = uploadApiService.uploadImage(uploadUrl, uploadHeaders, imageBody);
 
         uploadCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (!response.isSuccessful()) {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e(TAG, "uploadImage failed: " + response.code() + " - " + errorBody);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Error reading errorBody", e);
+                    }
                     callback.onUploadComplete(null, false);
                     return;
                 }
 
                 String getUrl = String.format("users%%2F%s%%2Fmoments%%2Fthumbnails%%2F%s", idUser, nameImg);
+                Log.d(TAG, "Image uploaded successfully, fetching download token...");
+
                 Map<String, String> getHeaders = Map.of(
                         "content-type", "application/json; charset=UTF-8",
                         "authorization", "Bearer " + idToken
@@ -95,19 +120,21 @@ public class ApiCaller {
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
-                Log.e("ApiCaller", "Error in uploadImage", throwable);
+                Log.e(TAG, "Error in uploadImage", throwable);
                 callback.onUploadComplete(null, false);
             }
         });
     }
 
     private void getDownloadTokenImage(String getUrl, Map<String, String> getHeaders, UploadCallback callback) {
+        Log.d(TAG, "Fetching download token for: " + getUrl);
         Call<ResponseBody> getCall = uploadApiService.getDownloadTokenImage(getUrl, getHeaders);
 
         getCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (!response.isSuccessful()) {
+                    Log.e(TAG, "getDownloadTokenImage failed: " + response.code());
                     callback.onUploadComplete(null, false);
                     return;
                 }
@@ -117,57 +144,60 @@ public class ApiCaller {
                     JSONObject jsonObject = new JSONObject(responseBody);
                     String downloadToken = jsonObject.optString("downloadTokens", null);
                     String finalUrl = call.request().url() + "?alt=media&token=" + downloadToken;
+
+                    Log.d(TAG, "Download token received: " + downloadToken);
                     callback.onUploadComplete(finalUrl, true);
                 } catch (Exception e) {
-                    Log.e("ApiCaller", "Error parsing download token", e);
+                    Log.e(TAG, "Error parsing download token", e);
                     callback.onUploadComplete(null, false);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
-                Log.e("ApiCaller", "Error in getDownloadToken", throwable);
+                Log.e(TAG, "Error in getDownloadTokenImage", throwable);
                 callback.onUploadComplete(null, false);
             }
         });
     }
 
     public void postImage(String idUser, String idToken, String caption, byte[] image, UploadCallback callback) {
+        Log.d(TAG, "Starting postImage...");
         startUploadImage(idUser, idToken, image, (thumbnailUrl, success) -> {
             if (!success || thumbnailUrl == null) {
+                Log.e(TAG, "postImage: Upload failed!");
                 callback.onUploadComplete(null, false);
                 return;
             }
 
-            // Xây dựng JSON dữ liệu dựa trên giá trị của caption
-            String jsonData;
-            if (caption == null || caption.isEmpty()) {
-                jsonData = String.format("{\"data\":{\"thumbnail_url\":\"%s\",\"sent_to_all\":true}}", thumbnailUrl);
-            } else {
-                jsonData = String.format("{\"data\":{\"thumbnail_url\":\"%s\",\"caption\":\"%s\",\"sent_to_all\":true}}", thumbnailUrl, caption);
-            }
+            String jsonData = caption == null || caption.isEmpty() ?
+                    String.format("{\"data\":{\"thumbnail_url\":\"%s\",\"sent_to_all\":true}}", thumbnailUrl) :
+                    String.format("{\"data\":{\"thumbnail_url\":\"%s\",\"caption\":\"%s\",\"sent_to_all\":true}}", thumbnailUrl, caption);
+
             RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonData);
+            Log.d(TAG, "Posting moment with data: " + jsonData);
 
             Call<ResponseBody> call = postApiService.postImage("postMomentV2", HeaderConstants.getPostHeaders(idToken), body);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     if (!response.isSuccessful()) {
+                        Log.e(TAG, "postImage failed: " + response.code());
                         callback.onUploadComplete(null, false);
                         return;
                     }
+                    Log.d(TAG, "postImage successful!");
                     callback.onUploadComplete(thumbnailUrl, true);
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable throwable) {
-                    Log.e("ApiCaller", "Error in postImage", throwable);
+                    Log.e(TAG, "Error in postImage", throwable);
                     callback.onUploadComplete(thumbnailUrl, false);
                 }
             });
         });
     }
-
 
 //    //VIDEO
 //    public void startUploadVideo(String idUser, String idToken, byte[] video, UploadCallback callback) {
