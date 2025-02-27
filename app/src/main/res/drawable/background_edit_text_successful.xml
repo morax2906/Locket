@@ -4,7 +4,7 @@
     <stroke
         android:width="@dimen/_2sdp"
         android:color="@color/app" />
-    <solid android:color="@color/bg_btn" />
+    <solid android:color="@color/bg_btn_translucent" />
 
     <corners android:radius="@dimen/_10sdp" />
 </shape>
