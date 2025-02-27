@@ -21,7 +21,7 @@ public interface UserApiService {
     })
     @POST("changeProfileInfo")
     Call<ResponseBody> CHANGE_NAME_RESPONSE_CALL(
-            @Header("Authorization") String token,  // Token động
+            @Header("Authorization") String token,
             @Body RequestBody body
     );
 
@@ -36,8 +36,29 @@ public interface UserApiService {
     })
     @POST("validateUsername")
     Call<ResponseBody> CHECK_USERNAME_RESPONSE_CALL(
-            @Header("Authorization") String token,  // Token động
+            @Header("Authorization") String token,
             @Body RequestBody body
     );
+
+    //Change Profile Info
+    @Headers({
+            "Accept-Encoding: gzip",
+            "Connection: Keep-Alive",
+            "Content-Type: application/json; charset=utf-8",
+            "Firebase-Instance-ID-Token: dTNmyvemRZa4oRGQQVW4yF:APA91bH_VREpca_sHe-nCHxjR_O9jUlYtq2kEBY5DXmozxBRscqCojkc4HltOMIjtvVZHrgTAWY3WkWhH-hgAveHN6Q2-BqolZQp9FKAcZNOcHg86luXfaDh94dMsmOpBdGAJLzWuwGl",
+            "Host: api.locketcamera.com",
+            "User-Agent: okhttp/4.9.2",
+    })
+    @POST("changeProfileInfo")
+    Call<ResponseBody> username_discoverability_disabled(
+            @Header("Authorization") String token,
+            @Body RequestBody body
+    );
+
+    //{
+    //  "data": {
+    //    "username_discoverability_disabled": true
+    //  }
+    //}
 
 }

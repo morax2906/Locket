@@ -18,8 +18,8 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_below="@+id/material_card"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/material_card">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -37,8 +37,8 @@
                     android:id="@+id/img_capture"
                     android:layout_width="@dimen/_100sdp"
                     android:layout_height="@dimen/_100sdp"
-                    android:background="@drawable/background_btn_capture"
-                    android:padding="@dimen/_6sdp"
+                    android:background="@drawable/bg_widget_empty_circle_outline"
+                    android:padding="@dimen/_5sdp"
                     android:src="@color/white"
                     app:riv_corner_radius="@dimen/_50sdp" />
 
@@ -48,8 +48,8 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/background_btn_add"
-                    android:padding="@dimen/_6sdp"
-                    android:src="@drawable/add_24px"
+                    android:padding="@dimen/_8sdp"
+                    android:src="@drawable/ic_plus"
                     app:tint="@color/bg" />
             </RelativeLayout>
 
@@ -60,7 +60,7 @@
                 android:layout_below="@+id/relative_avatar"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:fontFamily="@font/black"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_18ssp" />
 
@@ -73,7 +73,7 @@
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/_10sdp"
                 android:background="@drawable/background_item_bottom_sheet"
-                android:fontFamily="@font/black"
+                android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                 android:paddingHorizontal="@dimen/_10sdp"
                 android:paddingVertical="@dimen/_5sdp"
                 android:text="Sửa thông tin"
@@ -95,7 +95,7 @@
                     android:id="@+id/img_avatar_2"
                     android:layout_width="@dimen/_40sdp"
                     android:layout_height="@dimen/_40sdp"
-                    android:background="@drawable/background_btn_capture"
+                    android:background="@drawable/bg_widget_empty_circle_outline"
                     android:padding="@dimen/_4sdp"
                     android:src="@color/white"
                     app:riv_corner_radius="@dimen/_50sdp" />
@@ -111,7 +111,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Mới"
                         android:textColor="@color/app"
                         android:textSize="@dimen/_12ssp" />
@@ -119,7 +119,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Đăng ký tên người dùng của bạn"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -142,18 +142,18 @@
                 android:layout_marginTop="@dimen/_10sdp">
 
                 <ImageView
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
+                    android:layout_width="@dimen/_18sdp"
+                    android:layout_height="@dimen/_18sdp"
                     android:layout_gravity="center"
-                    android:src="@drawable/add_box_24px"
+                    android:src="@drawable/ic_plus_square_dashed"
                     app:tint="@color/text" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:fontFamily="@font/black"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                     android:text="Thiết lập Tiện ích"
                     android:textColor="@color/text"
                     android:textSize="@dimen/_12ssp" />
@@ -175,19 +175,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/add_box_24px"
+                        android:src="@drawable/ic_plus_square_fill"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Thêm Tiện ích"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -213,19 +213,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/help_24px"
+                        android:src="@drawable/ic_question_mark"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Hướng dẫn về Tiện ích"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -249,8 +249,8 @@
                 android:layout_marginTop="@dimen/_20sdp">
 
                 <ImageView
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
+                    android:layout_width="@dimen/_18sdp"
+                    android:layout_height="@dimen/_18sdp"
                     android:layout_gravity="center"
                     android:src="@drawable/person_24px"
                     app:tint="@color/text" />
@@ -259,11 +259,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:fontFamily="@font/black"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                     android:text="Tổng quát"
                     android:textColor="@color/text"
-                    android:textSize="@dimen/_14ssp" />
+                    android:textSize="@dimen/_12ssp" />
             </LinearLayout>
 
             <LinearLayout
@@ -283,19 +283,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/mail_24px"
+                        android:src="@drawable/ic_baseline_email_24"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Thay đổi địa chỉ email"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -321,20 +321,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:rotation="-40"
-                        android:src="@drawable/send_24px"
+                        android:src="@drawable/ic_paperplane_fill"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Chia sẻ phản hồi"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -360,19 +359,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/error_24px"
+                        android:src="@drawable/ic_exclamationmark_circle_fill"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Báo cáo sự cố"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -396,8 +395,8 @@
                 android:layout_marginTop="@dimen/_20sdp">
 
                 <ImageView
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
+                    android:layout_width="@dimen/_18sdp"
+                    android:layout_height="@dimen/_18sdp"
                     android:layout_gravity="center"
                     android:src="@drawable/favorite_24px"
                     app:tint="@color/text" />
@@ -406,11 +405,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:fontFamily="@font/black"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                     android:text="Giới thiệu"
                     android:textColor="@color/text"
-                    android:textSize="@dimen/_14ssp" />
+                    android:textSize="@dimen/_12ssp" />
             </LinearLayout>
 
             <LinearLayout
@@ -429,19 +428,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/call_24px"
+                        android:src="@drawable/ic_tiktok"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="TikTok"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -467,19 +466,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/mail_24px"
+                        android:src="@drawable/ic_instagram"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Instagram"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -505,20 +504,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:rotation="-40"
-                        android:src="@drawable/send_24px"
+                        android:src="@drawable/ic_twitter"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Twitter"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -544,19 +542,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ios_share_24px"
+                        android:src="@drawable/ic_share"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Chia sẻ Locket"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -582,19 +580,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/star_24px"
+                        android:src="@drawable/ic_star"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Đánh giá Locket"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -620,19 +618,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ios_share_24px"
+                        android:src="@drawable/ic_signature"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Điều khoản dịch vụ"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -658,19 +656,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/lock_24px"
+                        android:src="@drawable/ic_lock_fill"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Chính sách quyền riêng tư"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -694,21 +692,21 @@
                 android:layout_marginTop="@dimen/_20sdp">
 
                 <ImageView
-                    android:layout_width="@dimen/_20sdp"
-                    android:layout_height="@dimen/_20sdp"
+                    android:layout_width="@dimen/_18sdp"
+                    android:layout_height="@dimen/_18sdp"
                     android:layout_gravity="center"
-                    android:src="@drawable/report_24px"
+                    android:src="@drawable/ic_stop_exclamation_fill"
                     app:tint="@color/text" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:fontFamily="@font/black"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                     android:text="Vùng nguy hiểm"
                     android:textColor="@color/text"
-                    android:textSize="@dimen/_14ssp" />
+                    android:textSize="@dimen/_12ssp" />
             </LinearLayout>
 
             <LinearLayout
@@ -728,19 +726,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/front_hand_24px"
+                        android:src="@drawable/ic_handwave_fill"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Đăng xuất"
                         android:textColor="@color/white"
                         android:textSize="@dimen/_12ssp" />
@@ -766,19 +764,19 @@
                     android:padding="@dimen/_10sdp">
 
                     <ImageView
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_18sdp"
+                        android:layout_height="@dimen/_18sdp"
                         android:layout_gravity="center"
-                        android:src="@drawable/delete_24px"
+                        android:src="@drawable/ic_trash"
                         app:tint="@color/red" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_weight="1"
-                        android:fontFamily="@font/black"
+                        android:fontFamily="@font/assets_fonts_proximasoft_proximasoftbold"
                         android:text="Xóa tài khoản"
                         android:textColor="@color/red"
                         android:textSize="@dimen/_12ssp" />

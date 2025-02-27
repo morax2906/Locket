@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +67,10 @@ public class BottomSheetRegisterUserName extends BottomSheetDialogFragment {
         this.activity = activity;
     }
 
-
+    @Override
+    public int getTheme() {
+        return R.style.CustomBottomSheetDialogTheme; // Áp dụng theme tùy chỉnh
+    }
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -119,12 +123,12 @@ public class BottomSheetRegisterUserName extends BottomSheetDialogFragment {
                     progress_bar.setVisibility(View.VISIBLE);
                     txt_check.setText("Đang kiểm tra...");
                     txt_check.setTextColor(ContextCompat.getColor(context, R.color.hint));
-                    new Handler().postDelayed(() -> checkUserName(),1500);
-                } else if (username.isEmpty()){
+                    new Handler().postDelayed(() -> checkUserName(), 1500);
+                } else if (username.isEmpty()) {
                     txt_note.setVisibility(View.VISIBLE);
                     linear_check.setVisibility(View.GONE);
                     edt_username.setBackgroundResource(R.drawable.background_edit_text);
-                }else {
+                } else {
                     txt_note.setVisibility(View.GONE);
                     linear_check.setVisibility(View.VISIBLE);
                     img_error.setVisibility(View.VISIBLE);
@@ -193,4 +197,12 @@ public class BottomSheetRegisterUserName extends BottomSheetDialogFragment {
         });
     }
 
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        // Hiển thị lại BottomSheetDialogFragment1 khi BottomSheetDialogFragment2 bị ẩn
+        BottomSheetInfo bottomSheet1 = new BottomSheetInfo(context, activity);
+        bottomSheet1.show(getParentFragmentManager(), bottomSheet1.getTag());
+    }
 }
